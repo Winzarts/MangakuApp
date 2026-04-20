@@ -36,7 +36,7 @@ Mangaku adalah aplikasi baca komik manga, manhwa, dan manhua yang dibangun denga
     </tr>
     <tr>
       <td align="center" colspan="3">
-        <img src="../screenshot/ActivityScreen.png" width="200" /><br />
+        <img src="screenshot/ActivityScreen.png" width="200" /><br />
         <sub><b>Activity/History</b></sub>
       </td>
     </tr>
