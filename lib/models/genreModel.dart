@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 
-part 'genresModel.g.dart';
+part 'genreModel.g.dart';
 
 @JsonSerializable()
 class GenresModel {
@@ -11,6 +11,7 @@ class GenresModel {
 
   factory GenresModel.fromJson(Map<String, dynamic> json) =>
       _$GenresModelFromJson(json);
+
   Map<String, dynamic> toJson() => _$GenresModelToJson(this);
 }
 

@@ -7,7 +7,7 @@ part of 'searchModel.dart';
 // **************************************************************************
 
 ResultsModel _$ResultsModelFromJson(Map<String, dynamic> json) => ResultsModel(
-  description: json['description'] as String,
+  description: json['description'] as String?,
   genre: json['genre'] as String,
   link: json['link'] as String,
   slug: json['slug'] as String,

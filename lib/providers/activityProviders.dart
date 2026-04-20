@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:mangaku/database/Appdb.dart';
+import 'package:mangaku/databases/appDB.dart';
 
-class ActivityProvider extends ChangeNotifier {
+class Activityproviders extends ChangeNotifier {
   final AppDatabase _db;
 
-  ActivityProvider(this._db);
+  Activityproviders(this._db);
 
   List<Bookmark> _bookmarks = [];
-  List<Bookmark> get bookmarks => _bookmarks;
+  List<History> _histories = [];
 
-  List<ReadingHistoryData> _history = [];
-  List<ReadingHistoryData> get history => _history;
+  List<History> get histories => _histories;
+  List<Bookmark> get bookmarks => _bookmarks;
 
   Future<void> loadAll() async {
     _bookmarks = await _db.getAllBookmarks();
-    _history = await _db.getAllHistory();
+    _histories = await _db.getAllHistories();
     notifyListeners();
   }
 
@@ -35,13 +35,18 @@ class ActivityProvider extends ChangeNotifier {
   }
 
   // History
-  Future<void> upsertHistory(ReadingHistoryCompanion entry) async {
+  Future<void> upsertHistory(HistoriesCompanion entry) async {
     await _db.upsertHistory(entry);
     await loadAll();
   }
 
-  Future<void> clearHistory() async {
-    await _db.clearHistory();
+  Future<void> deleteHistory(String mangaSlug, String chapterSlug) async {
+    await _db.deleteHistory(mangaSlug, chapterSlug);
+    await loadAll();
+  }
+
+  Future<void> clearHistories() async {
+    await _db.clearHistories();
     await loadAll();
   }
 }

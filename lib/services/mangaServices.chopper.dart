@@ -9,31 +9,31 @@ part of 'mangaServices.dart';
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
-final class _$Mangaservices extends Mangaservices {
-  _$Mangaservices([ChopperClient? client]) {
+final class _$MangaServices extends MangaServices {
+  _$MangaServices([ChopperClient? client]) {
     if (client == null) return;
     this.client = client;
   }
 
   @override
-  final Type definitionType = Mangaservices;
+  final Type definitionType = MangaServices;
 
   @override
-  Future<Response<dynamic>> getDetailManga(String slug) {
+  Future<Response<dynamic>> getMangaDetail(String slug) {
     final Uri $url = Uri.parse('/manga/${slug}');
     final Request $request = Request('GET', $url, client.baseUrl);
     return client.send<dynamic, dynamic>($request);
   }
 
   @override
-  Future<Response<dynamic>> getManga(String slug, String chapterSlug) {
-    final Uri $url = Uri.parse('/manga/${slug}/${chapterSlug}/');
+  Future<Response<dynamic>> getChapterDetail(String slug, String chapterSlug) {
+    final Uri $url = Uri.parse('/manga/${slug}/${chapterSlug}');
     final Request $request = Request('GET', $url, client.baseUrl);
     return client.send<dynamic, dynamic>($request);
   }
 
   @override
-  Future<Response<dynamic>> SearchManga(String query) {
+  Future<Response<dynamic>> searchManga(String query) {
     final Uri $url = Uri.parse('/search');
     final Map<String, dynamic> $params = <String, dynamic>{'q': query};
     final Request $request = Request(
@@ -53,91 +53,115 @@ final class _$Mangaservices extends Mangaservices {
   }
 
   @override
-  Future<Response<dynamic>> getMangaByGenre(String genre) {
-    final Uri $url = Uri.parse('/genre/${genre}');
+  Future<Response<dynamic>> getGenreDetail(String genreSlug) {
+    final Uri $url = Uri.parse('/genre/${genreSlug}');
     final Request $request = Request('GET', $url, client.baseUrl);
     return client.send<dynamic, dynamic>($request);
   }
 
   @override
-  Future<Response<dynamic>> getAllMangaList() {
+  Future<Response<dynamic>> getAllManga(int page) {
     final Uri $url = Uri.parse('/list-semua-komik');
-    final Request $request = Request('GET', $url, client.baseUrl);
+    final Map<String, dynamic> $params = <String, dynamic>{'page': page};
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+      parameters: $params,
+    );
     return client.send<dynamic, dynamic>($request);
   }
 
   @override
-  Future<Response<dynamic>> getMangaList() {
+  Future<Response<dynamic>> getListManga(int page) {
     final Uri $url = Uri.parse('/list-manga');
-    final Request $request = Request('GET', $url, client.baseUrl);
+    final Map<String, dynamic> $params = <String, dynamic>{'page': page};
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+      parameters: $params,
+    );
     return client.send<dynamic, dynamic>($request);
   }
 
   @override
-  Future<Response<dynamic>> getManhuaList() {
+  Future<Response<dynamic>> getListManhua(int page) {
     final Uri $url = Uri.parse('/list-manhua');
-    final Request $request = Request('GET', $url, client.baseUrl);
+    final Map<String, dynamic> $params = <String, dynamic>{'page': page};
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+      parameters: $params,
+    );
     return client.send<dynamic, dynamic>($request);
   }
 
   @override
-  Future<Response<dynamic>> getManhwaList() {
+  Future<Response<dynamic>> getListManhwa(int page) {
     final Uri $url = Uri.parse('/list-manhwa');
-    final Request $request = Request('GET', $url, client.baseUrl);
+    final Map<String, dynamic> $params = <String, dynamic>{'page': page};
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+      parameters: $params,
+    );
     return client.send<dynamic, dynamic>($request);
   }
 
   @override
-  Future<Response<dynamic>> getPopularManga() {
+  Future<Response<dynamic>> getPopular() {
     final Uri $url = Uri.parse('/popular');
     final Request $request = Request('GET', $url, client.baseUrl);
     return client.send<dynamic, dynamic>($request);
   }
 
   @override
-  Future<Response<dynamic>> getPopularMangaList() {
+  Future<Response<dynamic>> getPopularManga() {
     final Uri $url = Uri.parse('/popular-manga');
     final Request $request = Request('GET', $url, client.baseUrl);
     return client.send<dynamic, dynamic>($request);
   }
 
   @override
-  Future<Response<dynamic>> getPopularManhuaList() {
+  Future<Response<dynamic>> getPopularManhua() {
     final Uri $url = Uri.parse('/popular-manhua');
     final Request $request = Request('GET', $url, client.baseUrl);
     return client.send<dynamic, dynamic>($request);
   }
 
   @override
-  Future<Response<dynamic>> getPopularManhwaList() {
+  Future<Response<dynamic>> getPopularManhwa() {
     final Uri $url = Uri.parse('/popular-manhwa');
     final Request $request = Request('GET', $url, client.baseUrl);
     return client.send<dynamic, dynamic>($request);
   }
 
   @override
-  Future<Response<dynamic>> getLatestManga() {
+  Future<Response<dynamic>> getLatest() {
     final Uri $url = Uri.parse('/latest');
     final Request $request = Request('GET', $url, client.baseUrl);
     return client.send<dynamic, dynamic>($request);
   }
 
   @override
-  Future<Response<dynamic>> getLatestMangaList() {
+  Future<Response<dynamic>> getLatestManga() {
     final Uri $url = Uri.parse('/latest-manga');
     final Request $request = Request('GET', $url, client.baseUrl);
     return client.send<dynamic, dynamic>($request);
   }
 
   @override
-  Future<Response<dynamic>> getLatestManhuaList() {
+  Future<Response<dynamic>> getLatestManhua() {
     final Uri $url = Uri.parse('/latest-manhua');
     final Request $request = Request('GET', $url, client.baseUrl);
     return client.send<dynamic, dynamic>($request);
   }
 
   @override
-  Future<Response<dynamic>> getLatestManhwaList() {
+  Future<Response<dynamic>> getLatestManhwa() {
     final Uri $url = Uri.parse('/latest-manhwa');
     final Request $request = Request('GET', $url, client.baseUrl);
     return client.send<dynamic, dynamic>($request);

@@ -2,15 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:mangaku/providers/readProvider.dart';
-import 'package:mangaku/themes/zenThemes.dart';
+import 'package:mangaku/themes/app_colors.dart';
+import 'package:mangaku/themes/app_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-import 'package:mangaku/providers/activityProvider.dart';
-import 'package:mangaku/database/Appdb.dart';
+import 'package:mangaku/providers/activityProviders.dart';
+import 'package:mangaku/databases/appDB.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:mangaku/models/mangaModel.dart';
 
 class ReadScreen extends StatefulWidget {
+
+  static const routename = '/read-screen';
+
   final String mangaSlug;
   final String chapterSlug;
   final List<ChapterModel> chapters;
@@ -49,7 +53,7 @@ class _ReadScreenState extends State<ReadScreen> {
 
     if (mounted && readerProvider.chapterContent != null) {
       final content = readerProvider.chapterContent!;
-      final activityProvider = context.read<ActivityProvider>();
+      final activityProvider = context.read<Activityproviders>();
 
       // Get the chapter model from current list
       final chapter = widget.chapters.firstWhere(
@@ -64,7 +68,7 @@ class _ReadScreenState extends State<ReadScreen> {
       );
 
       await activityProvider.upsertHistory(
-        ReadingHistoryCompanion(
+        HistoriesCompanion(
           title: Value(content.title),
           mangaSlug: Value(widget.mangaSlug),
           chapterSlug: Value(slug),
@@ -192,7 +196,7 @@ class _ReadScreenState extends State<ReadScreen> {
                     onPressed: () {
                       showModalBottomSheet(
                         context: context,
-                        backgroundColor: ZenTheme.background,
+                        backgroundColor: AppTheme.darkTheme.scaffoldBackgroundColor,
                         builder: (context) => _buildSettingsSheet(),
                       );
                     },
@@ -230,7 +234,7 @@ class _ReadScreenState extends State<ReadScreen> {
                 style: TextStyle(color: Colors.white),
               ),
               trailing: provider.readingMode == ReadingMode.vertical
-                  ? const Icon(Icons.check, color: ZenTheme.primary)
+                  ? const Icon(Icons.check, color: AppColors.darkTextPrimary)
                   : null,
               onTap: () {
                 provider.setReadingMode(ReadingMode.vertical);
@@ -244,7 +248,7 @@ class _ReadScreenState extends State<ReadScreen> {
                 style: TextStyle(color: Colors.white),
               ),
               trailing: provider.readingMode == ReadingMode.horizontal
-                  ? const Icon(Icons.check, color: ZenTheme.primary)
+                  ? const Icon(Icons.check, color: AppColors.darkTextPrimary)
                   : null,
               onTap: () {
                 provider.setReadingMode(ReadingMode.horizontal);
@@ -306,7 +310,7 @@ class _ReadScreenState extends State<ReadScreen> {
             // DOWNLOAD
             _buildNavButton(
               icon: Icons.download,
-              color: ZenTheme.primary,
+              color: AppColors.darkTextPrimary,
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Download dimulai...')),

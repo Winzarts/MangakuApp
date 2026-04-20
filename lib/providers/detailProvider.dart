@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mangaku/models/mangaModel.dart';
 import 'package:mangaku/services/mangaServices.dart';
 
-class DetailProvider extends ChangeNotifier {
-  final Mangaservices _mangaServices = Mangaservices.create();
+class Detailprovider extends ChangeNotifier {
+  final MangaServices _mangaServices = MangaServices.create();
 
   DetailMangaModel? _mangaDetail;
   DetailMangaModel? get mangaDetail => _mangaDetail;
@@ -14,28 +14,31 @@ class DetailProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  String _errorMessage = '';
+  String _errorMessage = "";
   String get errorMessage => _errorMessage;
 
   Future<void> fetchMangaDetail(String slug) async {
+    _mangaDetail = null;
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
 
     try {
-      final response = await _mangaServices.getDetailManga(slug);
+      final response = await _mangaServices.getMangaDetail(slug);
       if (response.isSuccessful && response.body != null) {
         final body = response.body;
-        if (body is Map<String, dynamic>) {
-          _mangaDetail = DetailMangaModel.fromJson(body);
+        if (body is Map) {
+          _mangaDetail = DetailMangaModel.fromJson(
+            Map<String, dynamic>.from(body),
+          );
         } else {
-          _errorMessage = 'Format data detail manga tidak valid';
+          _errorMessage = 'gagal memuat format data';
         }
       } else {
-        _errorMessage = 'Gagal mengambil detail manga';
+        _errorMessage = "gagal memuat data";
       }
     } catch (e) {
-      _errorMessage = e.toString();
+      _errorMessage = "terjadi kesalahan saat memuat data";
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -43,7 +46,6 @@ class DetailProvider extends ChangeNotifier {
   }
 
   String _cleanSlug(String slug) {
-    // Extract the part starting with 'chapter-'
     final index = slug.indexOf('chapter-');
     if (index != -1) {
       return slug.substring(index);
@@ -53,50 +55,42 @@ class DetailProvider extends ChangeNotifier {
 
   String _cleanMangaSlug(String slug) {
     return slug
-        .replaceAll('-indonesia', '')
-        .replaceAll('-indo', '')
-        .replaceAll('-id', '');
+    .replaceAll('-indonesia', '')
+    .replaceAll('-indo', '')
+    .replaceAll('-id', '');
   }
 
   Future<void> fetchChapterContent(String mangaSlug, String chapterSlug) async {
     _isLoading = true;
     _errorMessage = '';
-    _chapterContent = null; // Reset previous content
     notifyListeners();
 
     final cleanedChapterSlug = _cleanSlug(chapterSlug);
     final cleanedMangaSlug = _cleanMangaSlug(mangaSlug);
 
     try {
-      final response = await _mangaServices.getManga(
+      final response = await _mangaServices.getChapterDetail(
         cleanedMangaSlug,
-        cleanedChapterSlug,
+        cleanedChapterSlug
       );
-      if (response.isSuccessful && response.body != null) {
+      if (response.isSuccessful && response.body != null ) {
         final body = response.body;
         if (body is Map) {
           _chapterContent = MangaModel.fromJson(
-            Map<String, dynamic>.from(body),
+            Map<String, dynamic>.from(body)
           );
         } else {
-          _errorMessage = 'Format data salah (bukan Map): ${body.runtimeType}';
+          _errorMessage = 'gagal memuat format data';
         }
       } else {
-        String errorMsg = 'Gagal mengambil isi chapter';
-        final apiUrl = response.base.request?.url.toString() ?? 'Unknown URL';
+        _errorMessage = 'gagal memuat data';
 
         if (response.statusCode == 404) {
-          errorMsg = 'Chapter tidak ditemukan (404).\nLink: $apiUrl';
-        } else if (response.statusCode == 500) {
-          errorMsg = 'API Error (500): Gagal ambil konten.\nLink: $apiUrl';
-        } else {
-          errorMsg =
-              'Error ${response.statusCode}: ${response.error ?? 'Unknown error'}\nLink: $apiUrl';
+          _errorMessage = 'chapter komik tidak ditemukan';
         }
-        _errorMessage = errorMsg;
       }
     } catch (e) {
-      _errorMessage = e.toString();
+      _errorMessage = 'terjadi kesalahan saat memuat data';
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -105,6 +99,7 @@ class DetailProvider extends ChangeNotifier {
 
   void clearChapterContent() {
     _chapterContent = null;
+    _errorMessage = '';
     notifyListeners();
   }
 }

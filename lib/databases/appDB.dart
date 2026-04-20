@@ -4,7 +4,7 @@ import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
-part 'Appdb.g.dart';
+part 'appDB.g.dart';
 
 //table
 class Bookmarks extends Table {
@@ -18,7 +18,7 @@ class Bookmarks extends Table {
   DateTimeColumn get savedAt => dateTime().withDefault(currentDateAndTime)();
 }
 
-class ReadingHistory extends Table {
+class Histories extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get title => text()();
   TextColumn get url => text()();
@@ -33,7 +33,7 @@ class ReadingHistory extends Table {
 }
 
 //database
-@DriftDatabase(tables: [Bookmarks, ReadingHistory])
+@DriftDatabase(tables: [Bookmarks, Histories])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
@@ -56,16 +56,15 @@ class AppDatabase extends _$AppDatabase {
   Future<void> removeBookmark(String slug) =>
       (delete(bookmarks)..where((b) => b.slug.equals(slug))).go();
 
-  Future<List<ReadingHistoryData>> getAllHistory() =>
-      (select(readingHistory)
+  Future<List<History>> getAllHistories() =>
+      (select(histories)
             ..orderBy([(h) => OrderingTerm.desc(h.readAt)])
             ..limit(100))
           .get();
 
-  Future<void> upsertHistory(ReadingHistoryCompanion entry) async {
-    // Cek apakah sudah ada entry untuk manga+chapter yang sama
+  Future<void> upsertHistory(HistoriesCompanion entry) async {
     final existing =
-        await (select(readingHistory)..where(
+        await (select(histories)..where(
               (h) =>
                   h.mangaSlug.equals(entry.mangaSlug.value) &
                   h.chapterSlug.equals(entry.chapterSlug.value),
@@ -73,26 +72,32 @@ class AppDatabase extends _$AppDatabase {
             .getSingleOrNull();
 
     if (existing != null) {
-      await (update(
-        readingHistory,
-      )..where((h) => h.id.equals(existing.id))).write(
-        ReadingHistoryCompanion(
+      await (update(histories)..where((h) => h.id.equals(existing.id))).write(
+        HistoriesCompanion(
           lastPage: entry.lastPage,
           readAt: Value(DateTime.now()),
         ),
       );
     } else {
-      await into(readingHistory).insert(entry);
+      await into(histories).insert(entry);
     }
   }
 
-  Future<void> clearHistory() => delete(readingHistory).go();
+  Future<void> deleteHistory(String mangaSlug, String chapterSlug) =>
+      (delete(histories)..where(
+            (h) =>
+                h.mangaSlug.equals(mangaSlug) &
+                h.chapterSlug.equals(chapterSlug),
+          ))
+          .go();
+
+  Future<void> clearHistories() => delete(histories).go();
 }
 
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
     final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'mangaku.sqlite'));
-    return NativeDatabase(file);
+    final file = File(p.join(dbFolder.path, 'mangaku.db'));
+    return NativeDatabase.createInBackground(file);
   });
 }

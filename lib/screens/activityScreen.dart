@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:mangaku/providers/activityProvider.dart';
-import 'package:mangaku/themes/zenThemes.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:mangaku/providers/activityProviders.dart';
+import 'package:mangaku/themes/app_colors.dart';
+import 'package:mangaku/themes/app_theme.dart';
 import 'package:mangaku/screens/detailScreen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class ActivityScreen extends StatefulWidget {
+  static const routename = "/activity-screen";
+
   const ActivityScreen({super.key});
 
   @override
@@ -17,8 +21,10 @@ class _ActivityScreenState extends State<ActivityScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ActivityProvider>().loadAll();
+    Future.microtask(() {
+      if (mounted) {
+        context.read<Activityproviders>().loadAll();
+      }
     });
   }
 
@@ -27,19 +33,30 @@ class _ActivityScreenState extends State<ActivityScreen> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: ZenTheme.background,
+        backgroundColor: AppTheme.darkTheme.scaffoldBackgroundColor,
         appBar: AppBar(
-          title: const Text('Activity'),
+          backgroundColor: AppTheme.darkTheme.scaffoldBackgroundColor,
           elevation: 0,
-          backgroundColor: ZenTheme.background,
-          bottom: const TabBar(
-            tabs: [
+          title: Text(
+            'Activity',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: AppColors.darkAccent,
+            ),
+          ),
+          bottom: TabBar(
+            tabs: const [
               Tab(text: 'Bookmarks'),
-              Tab(text: 'Reading History'),
+              Tab(text: 'History'),
             ],
-            indicatorColor: ZenTheme.primary,
-            labelColor: ZenTheme.primary,
-            unselectedLabelColor: ZenTheme.textSecondary,
+            indicatorColor: AppColors.darkAccent,
+            labelColor: AppColors.darkTextPrimary,
+            unselectedLabelColor: AppColors.darkTextSecondary,
+            labelStyle: GoogleFonts.plusJakartaSans(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
           ),
         ),
         body: TabBarView(children: [_buildBookmarksTab(), _buildHistoryTab()]),
@@ -48,15 +65,10 @@ class _ActivityScreenState extends State<ActivityScreen> {
   }
 
   Widget _buildBookmarksTab() {
-    return Consumer<ActivityProvider>(
+    return Consumer<Activityproviders>(
       builder: (context, provider, child) {
         if (provider.bookmarks.isEmpty) {
-          return const Center(
-            child: Text(
-              'No bookmarks yet',
-              style: TextStyle(color: ZenTheme.textSecondary),
-            ),
-          );
+          return _buildEmptyState('No bookmarks yet');
         }
 
         return ListView.builder(
@@ -69,20 +81,13 @@ class _ActivityScreenState extends State<ActivityScreen> {
               child: _buildActivityItem(
                 title: bookmark.title,
                 thumbnail: bookmark.thumbnail,
+                slug: bookmark.slug,
                 subtitle:
                     'Bookmarked on ${DateFormat('dd MMM yyyy').format(bookmark.savedAt)}',
                 trailing: IconButton(
-                  icon: const Icon(Icons.bookmark, color: ZenTheme.primary),
+                  icon: const Icon(Icons.bookmark, color: AppColors.darkAccent),
                   onPressed: () => provider.removeBookmark(bookmark.slug),
                 ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => DetailScreen(slug: bookmark.slug),
-                    ),
-                  );
-                },
               ),
             );
           },
@@ -92,43 +97,31 @@ class _ActivityScreenState extends State<ActivityScreen> {
   }
 
   Widget _buildHistoryTab() {
-    return Consumer<ActivityProvider>(
+    return Consumer<Activityproviders>(
       builder: (context, provider, child) {
-        if (provider.history.isEmpty) {
-          return const Center(
-            child: Text(
-              'No history available',
-              style: TextStyle(color: ZenTheme.textSecondary),
-            ),
-          );
+        if (provider.histories.isEmpty) {
+          return _buildEmptyState('No history available');
         }
 
         return ListView.builder(
           padding: const EdgeInsets.all(16),
-          itemCount: provider.history.length,
+          itemCount: provider.histories.length,
           itemBuilder: (context, index) {
-            final item = provider.history[index];
+            final item = provider.histories[index];
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: _buildActivityItem(
                 title: item.title,
                 thumbnail: item.thumbnail,
+                slug: item.mangaSlug,
                 subtitle: 'Last read: ${item.lastChapter}',
                 trailing: Text(
                   DateFormat('HH:mm').format(item.readAt),
-                  style: const TextStyle(
-                    color: ZenTheme.textSecondary,
+                  style: GoogleFonts.plusJakartaSans(
+                    color: AppColors.darkTextSecondary,
                     fontSize: 12,
                   ),
                 ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => DetailScreen(slug: item.mangaSlug),
-                    ),
-                  );
-                },
               ),
             );
           },
@@ -140,17 +133,24 @@ class _ActivityScreenState extends State<ActivityScreen> {
   Widget _buildActivityItem({
     required String title,
     required String thumbnail,
+    required String slug,
     required String subtitle,
     Widget? trailing,
-    required VoidCallback onTap,
   }) {
     return InkWell(
-      onTap: onTap,
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailScreen(slug: slug),
+          ),
+        );
+      },
       borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: ZenTheme.surface,
+          color: AppColors.darkSurfaceVariant,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -162,6 +162,12 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 width: 60,
                 height: 80,
                 fit: BoxFit.cover,
+                errorWidget: (context, url, error) => Container(
+                  width: 60,
+                  height: 80,
+                  color: AppColors.darkSurfaceVariant,
+                  child: const Icon(Icons.error, color: Colors.white24),
+                ),
               ),
             ),
             const SizedBox(width: 12),
@@ -173,17 +179,17 @@ class _ActivityScreenState extends State<ActivityScreen> {
                     title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: GoogleFonts.plusJakartaSans(
                       fontWeight: FontWeight.bold,
-                      color: ZenTheme.textPrimary,
+                      color: AppColors.darkTextPrimary,
                       fontSize: 16,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: const TextStyle(
-                      color: ZenTheme.textSecondary,
+                    style: GoogleFonts.plusJakartaSans(
+                      color: AppColors.darkTextSecondary,
                       fontSize: 13,
                     ),
                   ),
@@ -193,6 +199,22 @@ class _ActivityScreenState extends State<ActivityScreen> {
             if (trailing != null) trailing,
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.history_toggle_off, size: 64, color: Colors.white12),
+          const SizedBox(height: 16),
+          Text(
+            message,
+            style: GoogleFonts.plusJakartaSans(color: AppColors.darkTextSecondary),
+          ),
+        ],
       ),
     );
   }

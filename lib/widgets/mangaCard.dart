@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mangaku/models/popularModel.dart';
 import 'package:mangaku/models/latestModel.dart';
 import 'package:mangaku/models/listModel.dart';
-import 'package:mangaku/models/genresModel.dart';
+import 'package:mangaku/models/genreModel.dart';
 import 'package:mangaku/models/searchModel.dart';
 import 'package:mangaku/screens/detailScreen.dart';
-import 'package:mangaku/themes/zenThemes.dart';
+import 'package:mangaku/themes/app_colors.dart';
+import 'package:shimmer/shimmer.dart';
 
 class MangaCard extends StatelessWidget {
   final String title;
@@ -14,7 +16,9 @@ class MangaCard extends StatelessWidget {
   final String slug;
   final String? type;
   final String? status;
-  final String? updated;
+  final String? subtitle;
+
+  final double? progress; // 0.0 to 1.0
 
   const MangaCard({
     super.key,
@@ -23,8 +27,31 @@ class MangaCard extends StatelessWidget {
     required this.slug,
     this.type,
     this.status,
-    this.updated,
+    this.subtitle,
+    this.progress,
   });
+
+  factory MangaCard.library(dynamic manga, {double? progress}) {
+    if (manga is ListMangaModel) {
+      final slug = Uri.parse(manga.url).pathSegments.lastWhere((s) => s.isNotEmpty, orElse: () => '');
+      return MangaCard(
+        title: manga.title,
+        thumbnail: manga.thumbnail,
+        slug: slug,
+        type: manga.type,
+        subtitle: manga.status.isNotEmpty ? manga.status : manga.type,
+        progress: progress,
+      );
+    }
+    // Handle other types if needed
+    return MangaCard(
+      title: manga.title ?? '',
+      thumbnail: manga.thumbnail ?? '',
+      slug: manga.slug ?? '',
+      type: manga.type,
+      progress: progress,
+    );
+  }
 
   factory MangaCard.popular(PopularModel manga) {
     return MangaCard(
@@ -32,7 +59,7 @@ class MangaCard extends StatelessWidget {
       thumbnail: manga.thumbnail,
       slug: manga.slug,
       type: manga.type,
-      updated: manga.updated,
+      subtitle: manga.genre,
     );
   }
 
@@ -42,20 +69,19 @@ class MangaCard extends StatelessWidget {
       thumbnail: manga.thumbnail,
       slug: manga.slug,
       type: manga.type,
-      updated: manga.updated,
+      subtitle: manga.genre,
     );
   }
 
   factory MangaCard.listManga(ListMangaModel manga) {
-    final slug = Uri.parse(
-      manga.url,
-    ).pathSegments.lastWhere((s) => s.isNotEmpty, orElse: () => '');
+    final slug = Uri.parse(manga.url).pathSegments.lastWhere((s) => s.isNotEmpty, orElse: () => '');
     return MangaCard(
       title: manga.title,
       thumbnail: manga.thumbnail,
       slug: slug,
       type: manga.type,
       status: manga.status,
+      subtitle: manga.type,
     );
   }
 
@@ -65,6 +91,7 @@ class MangaCard extends StatelessWidget {
       thumbnail: manga.thumbnail,
       slug: manga.slug,
       type: manga.type,
+      subtitle: manga.genre,
     );
   }
 
@@ -74,9 +101,9 @@ class MangaCard extends StatelessWidget {
       thumbnail: manga.thumbnail,
       slug: manga.slug,
       type: manga.type,
+      subtitle: manga.type,
     );
   }
-
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -86,106 +113,191 @@ class MangaCard extends StatelessWidget {
           MaterialPageRoute(builder: (context) => DetailScreen(slug: slug)),
         );
       },
-      child: Container(
-        decoration: BoxDecoration(
-          color: ZenTheme.surface,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Stack(
-                children: [
-                  CachedNetworkImage(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Image with Badge
+          AspectRatio(
+            aspectRatio: 3 / 4.2,
+            child: Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: CachedNetworkImage(
                     imageUrl: thumbnail,
                     width: double.infinity,
                     height: double.infinity,
                     fit: BoxFit.cover,
-                    placeholder: (context, url) => Container(
-                      color: ZenTheme.surface,
-                      child: const Center(child: CircularProgressIndicator()),
+                    placeholder: (context, url) => Shimmer.fromColors(
+                      baseColor: Colors.grey[800]!,
+                      highlightColor: Colors.grey[700]!,
+                      child: Container(color: Colors.black),
                     ),
                     errorWidget: (context, url, error) => Container(
-                      color: ZenTheme.surface,
-                      child: const Icon(Icons.error),
+                      color: AppColors.darkSurfaceVariant,
+                      child: const Icon(Icons.error, color: Colors.white24),
                     ),
                   ),
-                  if (type != null)
-                    Positioned(
-                      top: 8,
-                      left: 8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
+                ),
+                // Badge
+                if (status != null && status!.isNotEmpty)
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: _getBadgeColor(status!).withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        status!.toUpperCase(),
+                        style: GoogleFonts.plusJakartaSans(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
                         ),
-                        decoration: BoxDecoration(
-                          color: ZenTheme.primary.withOpacity(0.9),
-                          borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  )
+                else if (type != null)
+                  Positioned(
+                    top: 10,
+                    left: 10,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: _getBadgeColor(type!).withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                         _getBadgeText(type!),
+                        style: GoogleFonts.plusJakartaSans(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
                         ),
-                        child: Text(
-                          type!,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                // Progress Bar
+                if (progress != null)
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      height: 4,
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(16),
+                          bottomRight: Radius.circular(16),
+                        ),
+                        color: Colors.black26,
+                      ),
+                      child: FractionallySizedBox(
+                        alignment: Alignment.centerLeft,
+                        widthFactor: progress!.clamp(0.0, 1.0),
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(16),
+                            ),
+                            color: AppColors.darkAccent,
                           ),
                         ),
                       ),
                     ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: ZenTheme.textPrimary,
-                    ),
                   ),
-                  const SizedBox(height: 4),
-                  if (updated != null)
-                    Text(
-                      updated!,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: ZenTheme.textSecondary,
-                      ),
-                    ),
-                  if (status != null)
-                    Text(
-                      status!,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: status!.toLowerCase() == 'completed'
-                            ? Colors.green
-                            : ZenTheme.primary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          // Title
+          Text(
+            title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: AppColors.darkTextPrimary,
+              height: 1.2,
+            ),
+          ),
+          const SizedBox(height: 4),
+          // Subtitle / Genre
+          if (subtitle != null)
+            Text(
+              subtitle!,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 12,
+                color: AppColors.darkTextSecondary,
               ),
             ),
-          ],
-        ),
+        ],
       ),
     );
+  }
+
+  static Widget shimmer() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[800]!,
+      highlightColor: Colors.grey[700]!,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AspectRatio(
+            aspectRatio: 3 / 4.2,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            height: 14,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.black,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Container(
+            height: 12,
+            width: 80,
+            decoration: BoxDecoration(
+              color: Colors.black,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getBadgeText(String type) {
+    final t = type.toLowerCase();
+    if (t == 'manga') return 'UP';
+    if (t == 'manhwa' || t == 'manhua') return 'NEW';
+    return type.toUpperCase();
+  }
+
+  Color _getBadgeColor(String type) {
+    switch (type.toLowerCase()) {
+      case 'manga':
+        return AppColors.manga;
+      case 'manhwa':
+        return AppColors.manhwa;
+      case 'manhua':
+        return AppColors.manhua;
+      default:
+        return AppColors.darkAccent;
+    }
   }
 }

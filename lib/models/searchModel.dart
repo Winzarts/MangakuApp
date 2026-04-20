@@ -4,7 +4,7 @@ part 'searchModel.g.dart';
 
 @JsonSerializable()
 class ResultsModel {
-  final String description;
+  final String? description;
   final String genre;
   final String link;
   final String slug;
@@ -13,7 +13,7 @@ class ResultsModel {
   final String type;
 
   ResultsModel({
-    required this.description,
+    this.description,
     required this.genre,
     required this.link,
     required this.slug,

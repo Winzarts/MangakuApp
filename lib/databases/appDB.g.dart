@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'Appdb.dart';
+part of 'appDB.dart';
 
 // ignore_for_file: type=lint
 class $BookmarksTable extends Bookmarks
@@ -501,12 +501,12 @@ class BookmarksCompanion extends UpdateCompanion<Bookmark> {
   }
 }
 
-class $ReadingHistoryTable extends ReadingHistory
-    with TableInfo<$ReadingHistoryTable, ReadingHistoryData> {
+class $HistoriesTable extends Histories
+    with TableInfo<$HistoriesTable, History> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $ReadingHistoryTable(this.attachedDatabase, [this._alias]);
+  $HistoriesTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -641,10 +641,10 @@ class $ReadingHistoryTable extends ReadingHistory
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'reading_history';
+  static const String $name = 'histories';
   @override
   VerificationContext validateIntegrity(
-    Insertable<ReadingHistoryData> instance, {
+    Insertable<History> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -738,9 +738,9 @@ class $ReadingHistoryTable extends ReadingHistory
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  ReadingHistoryData map(Map<String, dynamic> data, {String? tablePrefix}) {
+  History map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return ReadingHistoryData(
+    return History(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}id'],
@@ -789,13 +789,12 @@ class $ReadingHistoryTable extends ReadingHistory
   }
 
   @override
-  $ReadingHistoryTable createAlias(String alias) {
-    return $ReadingHistoryTable(attachedDatabase, alias);
+  $HistoriesTable createAlias(String alias) {
+    return $HistoriesTable(attachedDatabase, alias);
   }
 }
 
-class ReadingHistoryData extends DataClass
-    implements Insertable<ReadingHistoryData> {
+class History extends DataClass implements Insertable<History> {
   final int id;
   final String title;
   final String url;
@@ -807,7 +806,7 @@ class ReadingHistoryData extends DataClass
   final int lastPage;
   final String genre;
   final DateTime readAt;
-  const ReadingHistoryData({
+  const History({
     required this.id,
     required this.title,
     required this.url,
@@ -837,8 +836,8 @@ class ReadingHistoryData extends DataClass
     return map;
   }
 
-  ReadingHistoryCompanion toCompanion(bool nullToAbsent) {
-    return ReadingHistoryCompanion(
+  HistoriesCompanion toCompanion(bool nullToAbsent) {
+    return HistoriesCompanion(
       id: Value(id),
       title: Value(title),
       url: Value(url),
@@ -853,12 +852,12 @@ class ReadingHistoryData extends DataClass
     );
   }
 
-  factory ReadingHistoryData.fromJson(
+  factory History.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return ReadingHistoryData(
+    return History(
       id: serializer.fromJson<int>(json['id']),
       title: serializer.fromJson<String>(json['title']),
       url: serializer.fromJson<String>(json['url']),
@@ -890,7 +889,7 @@ class ReadingHistoryData extends DataClass
     };
   }
 
-  ReadingHistoryData copyWith({
+  History copyWith({
     int? id,
     String? title,
     String? url,
@@ -902,7 +901,7 @@ class ReadingHistoryData extends DataClass
     int? lastPage,
     String? genre,
     DateTime? readAt,
-  }) => ReadingHistoryData(
+  }) => History(
     id: id ?? this.id,
     title: title ?? this.title,
     url: url ?? this.url,
@@ -915,8 +914,8 @@ class ReadingHistoryData extends DataClass
     genre: genre ?? this.genre,
     readAt: readAt ?? this.readAt,
   );
-  ReadingHistoryData copyWithCompanion(ReadingHistoryCompanion data) {
-    return ReadingHistoryData(
+  History copyWithCompanion(HistoriesCompanion data) {
+    return History(
       id: data.id.present ? data.id.value : this.id,
       title: data.title.present ? data.title.value : this.title,
       url: data.url.present ? data.url.value : this.url,
@@ -937,7 +936,7 @@ class ReadingHistoryData extends DataClass
 
   @override
   String toString() {
-    return (StringBuffer('ReadingHistoryData(')
+    return (StringBuffer('History(')
           ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('url: $url, ')
@@ -970,7 +969,7 @@ class ReadingHistoryData extends DataClass
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is ReadingHistoryData &&
+      (other is History &&
           other.id == this.id &&
           other.title == this.title &&
           other.url == this.url &&
@@ -984,7 +983,7 @@ class ReadingHistoryData extends DataClass
           other.readAt == this.readAt);
 }
 
-class ReadingHistoryCompanion extends UpdateCompanion<ReadingHistoryData> {
+class HistoriesCompanion extends UpdateCompanion<History> {
   final Value<int> id;
   final Value<String> title;
   final Value<String> url;
@@ -996,7 +995,7 @@ class ReadingHistoryCompanion extends UpdateCompanion<ReadingHistoryData> {
   final Value<int> lastPage;
   final Value<String> genre;
   final Value<DateTime> readAt;
-  const ReadingHistoryCompanion({
+  const HistoriesCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
     this.url = const Value.absent(),
@@ -1009,7 +1008,7 @@ class ReadingHistoryCompanion extends UpdateCompanion<ReadingHistoryData> {
     this.genre = const Value.absent(),
     this.readAt = const Value.absent(),
   });
-  ReadingHistoryCompanion.insert({
+  HistoriesCompanion.insert({
     this.id = const Value.absent(),
     required String title,
     required String url,
@@ -1028,7 +1027,7 @@ class ReadingHistoryCompanion extends UpdateCompanion<ReadingHistoryData> {
        thumbnail = Value(thumbnail),
        type = Value(type),
        lastChapter = Value(lastChapter);
-  static Insertable<ReadingHistoryData> custom({
+  static Insertable<History> custom({
     Expression<int>? id,
     Expression<String>? title,
     Expression<String>? url,
@@ -1056,7 +1055,7 @@ class ReadingHistoryCompanion extends UpdateCompanion<ReadingHistoryData> {
     });
   }
 
-  ReadingHistoryCompanion copyWith({
+  HistoriesCompanion copyWith({
     Value<int>? id,
     Value<String>? title,
     Value<String>? url,
@@ -1069,7 +1068,7 @@ class ReadingHistoryCompanion extends UpdateCompanion<ReadingHistoryData> {
     Value<String>? genre,
     Value<DateTime>? readAt,
   }) {
-    return ReadingHistoryCompanion(
+    return HistoriesCompanion(
       id: id ?? this.id,
       title: title ?? this.title,
       url: url ?? this.url,
@@ -1125,7 +1124,7 @@ class ReadingHistoryCompanion extends UpdateCompanion<ReadingHistoryData> {
 
   @override
   String toString() {
-    return (StringBuffer('ReadingHistoryCompanion(')
+    return (StringBuffer('HistoriesCompanion(')
           ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('url: $url, ')
@@ -1146,15 +1145,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $BookmarksTable bookmarks = $BookmarksTable(this);
-  late final $ReadingHistoryTable readingHistory = $ReadingHistoryTable(this);
+  late final $HistoriesTable histories = $HistoriesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [
-    bookmarks,
-    readingHistory,
-  ];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [bookmarks, histories];
 }
 
 typedef $$BookmarksTableCreateCompanionBuilder =
@@ -1404,8 +1400,8 @@ typedef $$BookmarksTableProcessedTableManager =
       Bookmark,
       PrefetchHooks Function()
     >;
-typedef $$ReadingHistoryTableCreateCompanionBuilder =
-    ReadingHistoryCompanion Function({
+typedef $$HistoriesTableCreateCompanionBuilder =
+    HistoriesCompanion Function({
       Value<int> id,
       required String title,
       required String url,
@@ -1418,8 +1414,8 @@ typedef $$ReadingHistoryTableCreateCompanionBuilder =
       Value<String> genre,
       Value<DateTime> readAt,
     });
-typedef $$ReadingHistoryTableUpdateCompanionBuilder =
-    ReadingHistoryCompanion Function({
+typedef $$HistoriesTableUpdateCompanionBuilder =
+    HistoriesCompanion Function({
       Value<int> id,
       Value<String> title,
       Value<String> url,
@@ -1433,9 +1429,9 @@ typedef $$ReadingHistoryTableUpdateCompanionBuilder =
       Value<DateTime> readAt,
     });
 
-class $$ReadingHistoryTableFilterComposer
-    extends Composer<_$AppDatabase, $ReadingHistoryTable> {
-  $$ReadingHistoryTableFilterComposer({
+class $$HistoriesTableFilterComposer
+    extends Composer<_$AppDatabase, $HistoriesTable> {
+  $$HistoriesTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -1498,9 +1494,9 @@ class $$ReadingHistoryTableFilterComposer
   );
 }
 
-class $$ReadingHistoryTableOrderingComposer
-    extends Composer<_$AppDatabase, $ReadingHistoryTable> {
-  $$ReadingHistoryTableOrderingComposer({
+class $$HistoriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $HistoriesTable> {
+  $$HistoriesTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -1563,9 +1559,9 @@ class $$ReadingHistoryTableOrderingComposer
   );
 }
 
-class $$ReadingHistoryTableAnnotationComposer
-    extends Composer<_$AppDatabase, $ReadingHistoryTable> {
-  $$ReadingHistoryTableAnnotationComposer({
+class $$HistoriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $HistoriesTable> {
+  $$HistoriesTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -1610,41 +1606,32 @@ class $$ReadingHistoryTableAnnotationComposer
       $composableBuilder(column: $table.readAt, builder: (column) => column);
 }
 
-class $$ReadingHistoryTableTableManager
+class $$HistoriesTableTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $ReadingHistoryTable,
-          ReadingHistoryData,
-          $$ReadingHistoryTableFilterComposer,
-          $$ReadingHistoryTableOrderingComposer,
-          $$ReadingHistoryTableAnnotationComposer,
-          $$ReadingHistoryTableCreateCompanionBuilder,
-          $$ReadingHistoryTableUpdateCompanionBuilder,
-          (
-            ReadingHistoryData,
-            BaseReferences<
-              _$AppDatabase,
-              $ReadingHistoryTable,
-              ReadingHistoryData
-            >,
-          ),
-          ReadingHistoryData,
+          $HistoriesTable,
+          History,
+          $$HistoriesTableFilterComposer,
+          $$HistoriesTableOrderingComposer,
+          $$HistoriesTableAnnotationComposer,
+          $$HistoriesTableCreateCompanionBuilder,
+          $$HistoriesTableUpdateCompanionBuilder,
+          (History, BaseReferences<_$AppDatabase, $HistoriesTable, History>),
+          History,
           PrefetchHooks Function()
         > {
-  $$ReadingHistoryTableTableManager(
-    _$AppDatabase db,
-    $ReadingHistoryTable table,
-  ) : super(
+  $$HistoriesTableTableManager(_$AppDatabase db, $HistoriesTable table)
+    : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$ReadingHistoryTableFilterComposer($db: db, $table: table),
+              $$HistoriesTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$ReadingHistoryTableOrderingComposer($db: db, $table: table),
+              $$HistoriesTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$ReadingHistoryTableAnnotationComposer($db: db, $table: table),
+              $$HistoriesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
@@ -1658,7 +1645,7 @@ class $$ReadingHistoryTableTableManager
                 Value<int> lastPage = const Value.absent(),
                 Value<String> genre = const Value.absent(),
                 Value<DateTime> readAt = const Value.absent(),
-              }) => ReadingHistoryCompanion(
+              }) => HistoriesCompanion(
                 id: id,
                 title: title,
                 url: url,
@@ -1684,7 +1671,7 @@ class $$ReadingHistoryTableTableManager
                 Value<int> lastPage = const Value.absent(),
                 Value<String> genre = const Value.absent(),
                 Value<DateTime> readAt = const Value.absent(),
-              }) => ReadingHistoryCompanion.insert(
+              }) => HistoriesCompanion.insert(
                 id: id,
                 title: title,
                 url: url,
@@ -1705,21 +1692,18 @@ class $$ReadingHistoryTableTableManager
       );
 }
 
-typedef $$ReadingHistoryTableProcessedTableManager =
+typedef $$HistoriesTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $ReadingHistoryTable,
-      ReadingHistoryData,
-      $$ReadingHistoryTableFilterComposer,
-      $$ReadingHistoryTableOrderingComposer,
-      $$ReadingHistoryTableAnnotationComposer,
-      $$ReadingHistoryTableCreateCompanionBuilder,
-      $$ReadingHistoryTableUpdateCompanionBuilder,
-      (
-        ReadingHistoryData,
-        BaseReferences<_$AppDatabase, $ReadingHistoryTable, ReadingHistoryData>,
-      ),
-      ReadingHistoryData,
+      $HistoriesTable,
+      History,
+      $$HistoriesTableFilterComposer,
+      $$HistoriesTableOrderingComposer,
+      $$HistoriesTableAnnotationComposer,
+      $$HistoriesTableCreateCompanionBuilder,
+      $$HistoriesTableUpdateCompanionBuilder,
+      (History, BaseReferences<_$AppDatabase, $HistoriesTable, History>),
+      History,
       PrefetchHooks Function()
     >;
 
@@ -1728,6 +1712,6 @@ class $AppDatabaseManager {
   $AppDatabaseManager(this._db);
   $$BookmarksTableTableManager get bookmarks =>
       $$BookmarksTableTableManager(_db, _db.bookmarks);
-  $$ReadingHistoryTableTableManager get readingHistory =>
-      $$ReadingHistoryTableTableManager(_db, _db.readingHistory);
+  $$HistoriesTableTableManager get histories =>
+      $$HistoriesTableTableManager(_db, _db.histories);
 }

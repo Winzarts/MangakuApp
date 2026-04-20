@@ -1,13 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:mangaku/screens/searchScreen.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:mangaku/themes/app_colors.dart';
+import 'package:mangaku/themes/app_theme.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:mangaku/providers/homeProvider.dart';
-import 'package:mangaku/themes/zenThemes.dart';
-import 'package:mangaku/widgets/mangaCard.dart';
-import 'package:mangaku/widgets/shimmerCard.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:mangaku/providers/activityProviders.dart';
+import 'package:mangaku/widgets/Carousel.dart';
+import 'package:mangaku/widgets/HistoryCard.dart';
+import 'package:mangaku/widgets/MangaCard.dart';
+import 'package:shimmer/shimmer.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  static const routename = '/home-screen';
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -17,196 +25,248 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<HomeProvider>().fetchPopularManga();
-      context.read<HomeProvider>().fetchLatestManga();
+    Future.microtask(() {
+      if (mounted) {
+        context.read<Homeprovider>().fetchPopular();
+        context.read<Homeprovider>().fetchLatest();
+        context.read<Activityproviders>().loadAll();
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Consumer<HomeProvider>(
-        builder: (context, homeProvider, child) {
-          if (homeProvider.isLoading && homeProvider.popularManga.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (homeProvider.errorMessage.isNotEmpty &&
-              homeProvider.popularManga.isEmpty) {
-            return Center(child: Text(homeProvider.errorMessage));
-          }
-
-          return RefreshIndicator(
-            onRefresh: () async {
-              await homeProvider.fetchPopularManga();
-              await homeProvider.fetchLatestManga();
-            },
-            child: CustomScrollView(
-              slivers: [
-                const SliverAppBar(
-                  floating: true,
-                  title: Text(
-                    '📖 Mangaku 📖',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      color: ZenTheme.primary,
-                    ),
-                  ),
-                  centerTitle: true,
-                  backgroundColor: ZenTheme.background,
-                ),
-                // Hero Banner
-                SliverToBoxAdapter(child: _buildHeroBanner(homeProvider)),
-                // Popular Section
-                SliverToBoxAdapter(
-                  child: _buildSectionHeader('Popular Now', () {}),
-                ),
-                SliverToBoxAdapter(
-                  child: _buildHorizontalList(
-                    homeProvider.popularManga,
-                    (manga) => MangaCard.popular(manga as dynamic),
-                    homeProvider.isLoading,
-                  ),
-                ),
-                // Latest Updates
-                SliverToBoxAdapter(
-                  child: _buildSectionHeader('Latest Updates', () {}),
-                ),
-                SliverToBoxAdapter(
-                  child: _buildHorizontalList(
-                    homeProvider.latestManga,
-                    (manga) => MangaCard.latest(manga as dynamic),
-                    homeProvider.isLoading,
-                  ),
-                ),
-                const SliverPadding(padding: EdgeInsets.only(bottom: 20)),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildHeroBanner(HomeProvider provider) {
-    if (provider.popularManga.isEmpty) return const SizedBox.shrink();
-
-    final featured = provider.popularManga.take(5).toList();
-
-    return Container(
-      height: 250,
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      child: PageView.builder(
-        itemCount: featured.length,
-        itemBuilder: (context, index) {
-          final manga = featured[index];
-          return Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              image: DecorationImage(
-                image: CachedNetworkImageProvider(manga.thumbnail),
-                fit: BoxFit.cover,
-                colorFilter: ColorFilter.mode(
-                  Colors.black.withOpacity(0.4),
-                  BlendMode.darken,
-                ),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: ZenTheme.primary,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: const Text(
-                      'FEATURED',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
+      backgroundColor: AppTheme.darkTheme.scaffoldBackgroundColor,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundColor: AppColors.darkAccent,
+                      child: SvgPicture.asset(
+                        "assets/icons/Icon.svg",
+                        width: 25,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    manga.title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                    const SizedBox(width: 8),
+                    Text(
+                      "Mangaku",
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.darkTextPrimary,
+                      ),
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    manga.genre,
-                    style: const TextStyle(color: Colors.white70, fontSize: 14),
-                  ),
-                ],
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.notifications, size: 30),
+                      color: AppColors.darkTextPrimary,
+                      onPressed: () {},
+                    ),
+                    const SizedBox(width: 8),
+                    const CircleAvatar(
+                      radius: 20,
+                      backgroundImage: AssetImage("assets/images/Profile.jpg"),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+              const SizedBox(height: 8),
+              const Divider(thickness: 1, color: AppColors.darkDivider),
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: TextField(
+                  readOnly: true,
+                  onTap: () {
+                    Navigator.pushNamed(context, Searchscreen.routename);
+                  },
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 16,
+                    ),
+                    hintText: "Search manga, manhwa or manhua",
+                    hintStyle: GoogleFonts.plusJakartaSans(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.darkTextSecondary,
+                    ),
+                    prefixIcon: const Icon(
+                      Icons.search,
+                      color: AppColors.darkTextSecondary,
+                    ),
+                    filled: true,
+                    fillColor: AppColors.darkSurfaceVariant,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              Consumer<Homeprovider>(
+                builder: (context, provider, child) {
+                  if (provider.isLoading) {
+                    return _buildCarouselShimmer();
+                  }
+                  if (provider.popularManga.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  return CustomCarousel(mangas: provider.popularManga);
+                },
+              ),
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Row(
+                  children: [
+                    Text(
+                      "New Release",
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.darkTextPrimary,
+                      ),
+                    ),
+                    const Spacer(),
+                    TextButton(
+                      onPressed: () {},
+                      child: Text(
+                        "See all",
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.darkAccent,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Consumer<Homeprovider>(
+                builder: (context, provider, child) {
+                  if (provider.isLoading && provider.latestManga.isEmpty) {
+                    return _buildLatestShimmer();
+                  }
+                  if (provider.latestManga.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  return SizedBox(
+                    height: 280,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      itemCount: provider.latestManga.length > 10
+                          ? 10
+                          : provider.latestManga.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 12),
+                          child: SizedBox(
+                            width: 140,
+                            child: MangaCard.latest(
+                              provider.latestManga[index],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 12),
+              Consumer<Activityproviders>(
+                builder: (context, provider, child) {
+                  return Column(
+                    children: [
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text(
+                          "History",
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.darkTextPrimary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      if (provider.histories.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                          child: Text(
+                            "kamu masih belum baca apapun nih ayo lanjut baca biar ada kegiatan disini ;)",
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 14,
+                              color: AppColors.darkTextSecondary,
+                              height: 1.5,
+                            ),
+                          ),
+                        )
+                      else ...[
+                        ...provider.histories.take(5).toList().asMap().entries.map((entry) {
+                          return HistoryCard(
+                            index: entry.key,
+                            history: entry.value,
+                          );
+                        }),
+                      ],
+                      const SizedBox(height: 12),
+                    ],
+                  );
+                },
+              ),
+              const SizedBox(height: 40),
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildSectionHeader(String title, VoidCallback onSeeAll) {
+  Widget _buildCarouselShimmer() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: ZenTheme.textPrimary,
-            ),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey[800]!,
+        highlightColor: Colors.grey[700]!,
+        child: Container(
+          height: 200,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.circular(24),
           ),
-          TextButton(
-            onPressed: onSeeAll,
-            child: const Text(
-              'See All',
-              style: TextStyle(color: ZenTheme.primary),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildHorizontalList(
-    List<dynamic> items,
-    Widget Function(dynamic) builder,
-    bool isLoading,
-  ) {
+  Widget _buildLatestShimmer() {
     return SizedBox(
       height: 280,
-      child: ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        cacheExtent: 320, // Prevents loading too many off-screen cards
-        itemCount: isLoading ? 5 : items.length,
-        separatorBuilder: (context, index) => const SizedBox(width: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        itemCount: 5,
         itemBuilder: (context, index) {
-          if (isLoading) {
-            return const SizedBox(width: 160, child: ShimmerCard());
-          }
-          return SizedBox(width: 160, child: builder(items[index]));
+          return Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: SizedBox(width: 140, child: MangaCard.shimmer()),
+          );
         },
       ),
     );

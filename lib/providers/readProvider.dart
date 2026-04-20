@@ -4,15 +4,15 @@ import 'package:mangaku/services/mangaServices.dart';
 
 enum ReadingMode { vertical, horizontal }
 
-enum ReaderTheme { dark, sepia }
+enum ReaderTheme { dark, light, system }
 
-class ReaderProvider extends ChangeNotifier {
-  final Mangaservices _mangaServices = Mangaservices.create();
+class ReaderProvider with ChangeNotifier {
+  final MangaServices _mangaServices = MangaServices.create();
 
   ReadingMode _readingMode = ReadingMode.vertical;
   ReadingMode get readingMode => _readingMode;
 
-  ReaderTheme _readerTheme = ReaderTheme.dark;
+  ReaderTheme _readerTheme = ReaderTheme.system;
   ReaderTheme get readerTheme => _readerTheme;
 
   MangaModel? _chapterContent;
@@ -62,7 +62,7 @@ class ReaderProvider extends ChangeNotifier {
     final cleanedMangaSlug = _cleanMangaSlug(slug);
 
     try {
-      final response = await _mangaServices.getManga(
+      final response = await _mangaServices.getChapterDetail(
         cleanedMangaSlug,
         cleanedChapterSlug,
       );

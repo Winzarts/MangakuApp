@@ -40,9 +40,9 @@ DetailMangaModel _$DetailMangaModelFromJson(Map<String, dynamic> json) =>
           .map((e) => e as String)
           .toList(),
       image_url: json['image_url'] as String,
-      indonesia_title: json['indonesia_title'] as String,
-      description: json['description'] as String,
-      sinopsis: json['sinopsis'] as String,
+      indonesia_title: json['indonesia_title'] as String?,
+      description: json['description'] as String?,
+      sinopsis: json['sinopsis'] as String?,
       title: json['title'] as String,
     );
 

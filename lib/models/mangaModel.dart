@@ -40,18 +40,18 @@ class DetailMangaModel {
   final List<ChapterModel> chapters;
   final List<String> genres;
   final String image_url;
-  final String indonesia_title;
-  final String description;
-  final String sinopsis;
+  final String? indonesia_title;
+  final String? description;
+  final String? sinopsis;
   final String title;
 
   DetailMangaModel({
     required this.chapters,
     required this.genres,
     required this.image_url,
-    required this.indonesia_title,
-    required this.description,
-    required this.sinopsis,
+    this.indonesia_title,
+    this.description,
+    this.sinopsis,
     required this.title,
   });
 
